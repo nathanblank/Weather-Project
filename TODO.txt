@@ -1,0 +1,9 @@
+Figure out how to save JSON response from weather API
+
+Make CSS
+
+Make background of weather page match current weather and light conditions
+
+Save favorite zipcodes for accounts
+
+Make sign in/sign up flow better
