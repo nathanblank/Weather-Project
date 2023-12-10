@@ -34,6 +34,7 @@
         input {
         padding: 8px;
         margin-right: 8px;
+        width: auto;
         }
 
         button {
@@ -49,7 +50,7 @@
     <body>
     <div id="weather-container">
         <h1>Weather App</h1>
-        <input type="text" id="city" placeholder="Enter city name">
+        <input type="text" id="city" placeholder="Enter city name or zip code">
         <button onclick="getWeather()">Get Weather</button>
         <div id="weather-info"></div>
     </div>
@@ -60,24 +61,34 @@
             const cityName = cityInput.value;
 
             if (!cityName) {
-                alert('Please enter a city name');
+                alert('Please enter a city name or zip code');
                 return;
             }
-
-            fetch("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Washington%20DC?unitGroup=us&include=days&key=MRHLULC5384B67VWFL2UVWDMT&contentType=json", 
-                {
-                "method": "GET",
-                "headers": {
-                    }
-                })
+            let url = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${cityName}?unitGroup=us&include=days&key=MRHLULC5384B67VWFL2UVWDMT&contentType=json`
+            fetch(url)
                 .then(response => {
-                    document.writeln(JSON.stringify(response, null, 2));
-                    console.log(JSON.stringify(response, null, 2));
+                // Check if the response status is OK (status code 200-299)
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+            
+                // Parse the response JSON
+                return response.json();
                 })
-                .catch(err => {
-                    console.error(err);
+                .then(data => {
+                    // Handle the data
+                    let dataObj = JSON.stringify(data);
+                    console.log('Data fetched successfully:', data);
+                    console.log(dataObj);
+                    document.writeln(dataObj.resolvedAddress);
+
+                    console.log(data);
+                })
+                .catch(error => {
+                    // Handle errors
+                    console.error('Error fetching data:', error);
                 });
-                
+            
         }
 
     </script>
