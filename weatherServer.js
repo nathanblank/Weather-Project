@@ -4,6 +4,7 @@ let fs = require("fs");
 let bodyParser = require('body-parser');
 let express = require('express');
 let path = require('path');
+let fetch = require('node-fetch')
 let app = express();
 
 let order = [];
@@ -30,6 +31,10 @@ app.get("/signIn", (req, res) => {
 
 app.get("/signUp", (req, res) => {
     res.render('signUp'); 
+});
+
+app.get("/home", (req, res) => {
+    res.render('home');
 });
 
 app.post("/signUpResponse", async (req, res) => {
@@ -61,6 +66,23 @@ app.post("/signInResponse", async (req, res) => {
 
 app.get("/home", async (req, res) => {
     res.render('home')
+});
+
+app.post("/processWeather", async (req, res) => {
+    let location = req.body.location;
+    let numDays = req.body.numDays;
+    let data = await processWeather(location, numDays);
+    if (data == "error") {
+        res.render("error");
+    } else {
+        let table = "<table border=\"1\"><thead><th border=\"1\">Date</th><th border=\"1\">Min. Temp</th><th border=\"1\">Max. Temp</th></thead>";
+        for (d of data) {
+            table += `<tr><td border=\"1\">${d.datetime}</td><td border=\"1\">${d.tempmin}</td><td border=\"1\">${d.tempmax}</td></tr>`;
+        }
+        table += "</tbody></table>";
+        let variable = {table: table};
+        res.render("weatherData", variable);
+    }
 });
 
 
@@ -114,11 +136,8 @@ async function lookUpOneUser(signInName) {
 
         if (result) {
             return result
-        } else {
-            document.querySelector("#errorMessage").innerHTML = "No user found with that username"
         }
     } catch (e) {
-        // console.log("FOUND AN ERROR");
         console.error(e);
     } finally {
         await client.close();
@@ -147,4 +166,19 @@ function getCurrentDateTime() {
 
 function padZero(value) {
     return value < 10 ? `0${value}` : value;
+}
+
+async function processWeather(location, numDays) {
+    try {
+        let url = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${location}?unitGroup=us&include=days&key=MRHLULC5384B67VWFL2UVWDMT&contentType=json`
+        let result = await fetch(url);
+        let json = await result.json();
+        let days = [];
+        for (let i = 0; i < numDays; i++) {
+            days.push(json.days[i]);
+        }
+        return days;
+    } catch (error){
+        return "error";
+    }
 }
