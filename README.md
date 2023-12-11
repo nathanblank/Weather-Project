@@ -6,4 +6,4 @@ Project description: This is a weather service that allows users to log into the
 
 API link: https://www.visualcrossing.com/weather-api
 
-YouTube Video Link: 
+YouTube Video Link: https://www.youtube.com/watch?v=mIwnoUEkOBw
